@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>像素字符 · 图片文字化工具 | 最终发布版</title>
+    <style>
+        :root {
+            --bg: #05070c;
+            --surface: rgba(14,17,26,0.85);
+            --surface-elevated: rgba(20,24,35,0.8);
+            --border: rgba(255,255,255,0.07);
+            --text: #e8ecf1;
+            --text-secondary: #8b92a0;
+            --accent: #a78bfa;
+            --accent-glow: rgba(167,139,250,0.3);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --transition: 0.22s ease;
+            --dropdown-bg: #1a1e2b;
+            --dropdown-text: #e8ecf1;
+            --dropdown-arrow: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%238b92a0' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        }
+        .theme-light {
+            --bg: #f2f4f8; --surface: rgba(255,255,255,0.88); --surface-elevated: rgba(255,255,255,0.78);
+            --border: rgba(0,0,0,0.06); --text: #1a1f2e; --text-secondary: #5b6478; --accent: #7c3aed;
+            --dropdown-bg: #ffffff; --dropdown-text: #1a1f2e;
+            --dropdown-arrow: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%235b6478' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        html,body{height:100%;overflow:hidden;}
+        body{
+            font-family:'Inter','PingFang SC',sans-serif;
+            background:var(--bg);
+            background-image:radial-gradient(ellipse at 25% 25%, rgba(129,140,248,0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 75% 70%, rgba(168,85,247,0.09) 0%, transparent 50%);
+            display:flex;align-items:center;justify-content:center;padding:14px;color:var(--text);
+            transition:background 0.4s, color 0.3s;
+        }
+        .app-container{width:100%;max-width:1420px;height:calc(100vh - 28px);background:var(--surface);backdrop-filter:blur(22px);border-radius:22px;border:1px solid var(--border);box-shadow:0 20px 50px rgba(0,0,0,0.55);display:flex;flex-direction:column;overflow:hidden;}
+        .app-header{padding:12px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.015);backdrop-filter:blur(12px);flex-shrink:0;}
+        .logo-mark{width:36px;height:36px;background:linear-gradient(135deg,#a78bfa,#7c3aed);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:19px;color:#fff;}
+        .header-tools{display:flex;gap:4px;}
+        .tool-btn{width:34px;height:34px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition);}
+        .tool-btn:hover{background:rgba(167,139,250,0.14);border-color:var(--accent);color:var(--accent);}
+        .main-grid{display:grid;grid-template-columns:410px 1fr;flex:1;min-height:0;}
+        @media(max-width:920px){.main-grid{grid-template-columns:1fr;}.control-panel{max-height:42vh;}}
+        .control-panel{padding:16px 18px;display:flex;flex-direction:column;gap:12px;border-right:1px solid var(--border);background:rgba(0,0,0,0.08);overflow-y:auto;scrollbar-width:none;}
+        .control-panel::-webkit-scrollbar{display:none;}
+        .mode-switcher{display:flex;background:rgba(255,255,255,0.025);border-radius:10px;padding:3px;gap:2px;border:1px solid var(--border);}
+        .mode-option{flex:1;text-align:center;padding:8px 3px;border-radius:8px;font-size:0.7rem;font-weight:600;cursor:pointer;color:var(--text-secondary);background:transparent;border:none;transition:var(--transition);}
+        .mode-option.active{background:var(--accent);color:#fff;box-shadow:0 3px 10px var(--accent-glow);}
+        .card{background:var(--surface-elevated);border-radius:var(--radius-md);border:1px solid var(--border);padding:14px;backdrop-filter:blur(6px);}
+        .drop-zone{border:2px dashed rgba(255,255,255,0.12);border-radius:16px;padding:20px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;min-height:100px;text-align:center;overflow:hidden;}
+        .drop-zone:hover{border-color:var(--accent);background:rgba(167,139,250,0.05);}
+        .image-preview{max-width:100%;max-height:90px;width:auto;height:auto;object-fit:contain;margin:0 auto;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.45);}
+        .mode-content{display:none;flex-direction:column;gap:10px;}
+        .mode-content.active{display:flex;}
+
+        /* 表单控件统一 */
+        textarea, select, input {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 10px;
+            color: var(--text);
+            font-size: 0.78rem;
+            outline: none;
+            width: 100%;
+            transition: border-color var(--transition);
+        }
+        textarea:focus, select:focus, input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        /* 下拉列表深度修复 */
+        select {
+            background-color: var(--dropdown-bg) !important;
+            color: var(--dropdown-text) !important;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: var(--dropdown-arrow);
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            padding-right: 32px;
+            cursor: pointer;
+        }
+        select option {
+            background-color: var(--dropdown-bg) !important;
+            color: var(--dropdown-text) !important;
+        }
+        /* 针对IE/Edge */
+        select::-ms-expand {
+            display: none;
+        }
+        /* 输入框datalist箭头隐藏 */
+        input::-webkit-calendar-picker-indicator {
+            opacity: 0.6;
+        }
+
+        .section-label{font-size:0.66rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;margin-bottom:4px;}
+        .chip-group{display:flex;flex-wrap:wrap;gap:4px;}
+        .chip{font-size:0.6rem;padding:3px 9px;border-radius:14px;cursor:pointer;background:rgba(255,255,255,0.03);color:var(--text-secondary);border:1px solid transparent;white-space:nowrap;transition:var(--transition);}
+        .chip.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+        .slider-row{display:flex;align-items:center;gap:10px;margin:4px 0 6px;}
+        input[type="range"]{flex:1;height:4px;background:rgba(255,255,255,0.08);-webkit-appearance:none;cursor:pointer;}
+        input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--accent);}
+        .badge-val{font-size:0.66rem;font-weight:600;background:rgba(255,255,255,0.05);border-radius:4px;padding:2px 7px;min-width:34px;text-align:center;border:1px solid var(--border);}
+        button{padding:8px 14px;border-radius:16px;font-weight:600;font-size:0.73rem;cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:5px;border:none;white-space:nowrap;}
+        .btn-primary{background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;box-shadow:0 4px 14px var(--accent-glow);}
+        .btn-outline{background:transparent;color:var(--text);border:1.5px solid rgba(255,255,255,0.15);}
+        .btn-success{background:#059669;color:#fff;}
+        .output-panel{padding:18px 22px;display:flex;flex-direction:column;gap:12px;background:rgba(0,0,0,0.12);}
+        .output-toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+        .view-toggle{display:flex;gap:3px;background:rgba(255,255,255,0.03);border-radius:8px;padding:2px;}
+        .view-option{padding:5px 11px;border-radius:6px;font-size:0.66rem;font-weight:600;cursor:pointer;background:transparent;border:none;color:var(--text-secondary);}
+        .view-option.active{background:var(--accent);color:#fff;}
+        .info-pill{font-size:0.63rem;color:var(--text-secondary);background:rgba(255,255,255,0.03);padding:2px 10px;border-radius:10px;border:1px solid var(--border);}
+        .art-output{flex:1;background:#02040a;border-radius:var(--radius-lg);padding:18px 20px;overflow:auto;font-family:'SF Mono','Fira Code',monospace;font-size:10px;line-height:1.18;white-space:pre;color:#b4e0b4;border:1px solid rgba(255,255,255,0.04);resize:vertical;min-height:140px;}
+        .art-output:empty::after{content:'✨ 选择模式开始创作，或点击 🎲 获取灵感';color:#4b5563;font-family:'Inter',sans-serif;font-size:0.85rem;opacity:0.65;}
+        .color-canvas{flex:1;border-radius:var(--radius-lg);border:1px solid rgba(255,255,255,0.04);display:none;width:100%;min-height:140px;background:#02040a;}
+        .gallery-drawer{display:none;flex-direction:column;gap:8px;background:var(--surface-elevated);border-radius:var(--radius-md);padding:12px;border:1px solid var(--border);}
+        .gallery-drawer.open{display:flex;}
+        .gallery-scroll{display:flex;flex-wrap:wrap;gap:5px;max-height:80px;overflow-y:auto;}
+        .gallery-thumb{width:60px;height:42px;background:#000;border-radius:3px;overflow:hidden;font-size:3.2px;line-height:1;white-space:pre;color:#0f0;cursor:pointer;border:1px solid transparent;}
+        .gallery-thumb:hover{border-color:var(--accent);}
+        .action-row{display:flex;gap:8px;flex-wrap:wrap;}
+        .toast-stack{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:9999;pointer-events:none;}
+        .toast-item{background:#1f2937;color:#fff;padding:8px 16px;border-radius:18px;font-size:0.78rem;box-shadow:0 6px 18px rgba(0,0,0,0.55);animation:toastIn 0.3s ease;margin-bottom:6px;}
+        @keyframes toastIn{from{opacity:0;transform:translateY(-10px);}}
+    </style>
+</head>
+<body>
+    <div class="app-container" id="appContainer">
+        <header class="app-header">
+            <div style="display:flex;align-items:center;gap:10px;"><div class="logo-mark">🎨</div><span style="font-size:1.15rem;font-weight:700;">图片文字化工具</span></div>
+            <div class="header-tools">
+                <button class="tool-btn" id="btnRandom" title="随机灵感 (Ctrl+Shift+R)">🎲</button>
+                <button class="tool-btn" id="btnThemeToggle" title="切换主题">🌓</button>
+                <button class="tool-btn" id="btnFullscreen" title="全屏">⛶</button>
+                <button class="tool-btn" id="btnShare" title="分享">📤</button>
+            </div>
+        </header>
+        <div class="main-grid">
+            <aside class="control-panel">
+                <div class="mode-switcher" id="modeSwitcher">
+                    <button class="mode-option active" data-mode="image">🖼️ 图片</button>
+                    <button class="mode-option" data-mode="text">📝 文字</button>
+                    <button class="mode-option" data-mode="draw">🎨 绘图</button>
+                    <button class="mode-option" data-mode="camera">📷 摄像头</button>
+                </div>
+                <div class="card" id="imageCard">
+                    <div class="drop-zone" id="dropZone"><span class="drop-icon" id="dropIcon">🖼️</span><p class="drop-text" id="dropText">点击或拖放图片</p><p class="drop-hint">JPG/PNG/WebP/GIF</p><input type="file" id="fileInput" accept="image/*" hidden><img id="previewImg" class="image-preview" style="display:none;" alt="预览"></div>
+                    <button class="btn-outline btn-full" id="btnLoadExample" style="margin-top:10px;">📸 加载示例</button>
+                </div>
+                <div class="mode-content card" id="textCard">
+                    <textarea id="textArea" placeholder="输入文字内容…" rows="2"></textarea>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <input type="text" list="fontList" id="fontSelect" placeholder="输入或选择字体" value="微软雅黑" style="flex:1;">
+                        <datalist id="fontList"><option value="Arial"><option value="微软雅黑"><option value="黑体"><option value="宋体"><option value="楷体"><option value="仿宋"><option value="Courier New"><option value="Georgia"><option value="Times New Roman"><option value="Verdana"><option value="华文楷体"><option value="幼圆"><option value="思源黑体"></datalist>
+                        <input type="range" id="fontSizeSlider" min="10" max="80" value="32" style="width:80px;"><span class="badge-val" id="fontSizeValue">32</span>
+                    </div>
+                    <div style="display:flex;gap:12px;"><label style="font-size:0.7rem;"><input type="checkbox" id="boldCheck">粗体</label><label style="font-size:0.7rem;"><input type="checkbox" id="italicCheck">斜体</label></div>
+                    <button class="btn-primary btn-full" id="btnGenerateText">✨ 生成文字图片</button>
+                </div>
+                <div class="mode-content card" id="drawCard">
+                    <canvas id="drawCanvas" width="360" height="240" style="background:#fff;border-radius:8px;width:100%;"></canvas>
+                    <div style="display:flex;gap:6px;align-items:center;"><input type="color" id="drawColor" value="#000000" style="width:32px;height:28px;"><input type="range" id="drawThickness" min="1" max="15" value="3" style="width:70px;"><span class="badge-val" id="drawThicknessValue">3</span><button class="btn-outline" id="btnClearDraw">🧹清除</button><button class="btn-outline" id="btnEraser">🧽橡皮</button></div>
+                    <button class="btn-primary btn-full" id="btnGenerateDraw">✨ 生成字符画</button>
+                </div>
+                <div class="mode-content card" id="cameraCard">
+                    <video id="cameraVideo" autoplay playsinline style="width:100%;border-radius:8px;background:#000;min-height:150px;"></video>
+                    <button class="btn-primary btn-full" id="btnCaptureCamera">📸 捕获当前帧</button>
+                </div>
+                <div class="card"><div class="section-label">🎞️ 滤镜</div><select id="filterSelect"><option value="none">无</option><option value="edge">边缘</option><option value="invert">反相</option><option value="grayscale">灰度</option></select></div>
+                <div class="card"><div class="section-label">🔤 字符集</div><div class="chip-group" id="chipGroup"><span class="chip active" data-charset=" .:-=+*#%@">标准</span><span class="chip" data-charset=" ░▒▓█">方块</span><span class="chip" data-charset=" .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$">精细</span><span class="chip" data-charset=" 🎨🖌️🖍️✏️📏📐✂️📌📍📎🔗">Emoji</span></div><input type="text" id="customCharset" placeholder="自定义字符集(从暗到亮)" style="margin-top:8px;"></div>
+                <div class="card"><div class="section-label">📏 宽度</div><div class="slider-row"><input type="range" id="widthSlider" min="40" max="200" value="100" step="5"><span class="badge-val" id="widthValue">100</span></div><div class="section-label" style="margin-top:12px;">📐 高宽比</div><div class="slider-row"><input type="range" id="aspectSlider" min="30" max="80" value="50" step="2"><span class="badge-val" id="aspectValue">0.50</span></div></div>
+                <div style="display:flex;gap:8px;"><button class="btn-outline" id="btnReset" style="flex:1;">↺ 重置</button><button class="btn-outline" id="btnGalleryToggle" style="flex:1;">🖼️ 画廊</button></div>
+            </aside>
+            <section class="output-panel">
+                <div class="output-toolbar"><div class="view-toggle" id="viewToggle"><button class="view-option active" data-view="plain">纯文本</button><button class="view-option" data-view="color">彩色渲染</button></div><span class="info-pill" id="outputStats">—</span></div>
+                <div class="art-output" id="artOutput" contenteditable="false" spellcheck="false"></div>
+                <canvas class="color-canvas" id="colorCanvas"></canvas>
+                <div class="gallery-drawer" id="galleryDrawer"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:0.68rem;">📁 作品库</span><button class="btn-outline" id="btnClearGallery" style="padding:2px 8px;font-size:0.58rem;">清空</button></div><div class="gallery-scroll" id="galleryScroll"></div></div>
+                <div class="action-row"><button class="btn-success" id="btnCopy">📋 复制</button><button class="btn-outline" id="btnSaveToGallery">💾 收藏</button><button class="btn-outline" id="btnDownloadTxt">📄 TXT</button><button class="btn-outline" id="btnDownloadPng">🖼️ PNG</button></div>
+            </section>
+        </div>
+    </div>
+    <div class="toast-stack" id="toastStack"></div>
+
+    <script>
+        (function() {
+            const state = { mode:'image',image:null,asciiText:'',asciiHtml:'',charset:' .:-=+*#%@',viewMode:'plain',isEraser:false,isDrawing:false,cameraStream:null,theme:localStorage.getItem('theme')||'dark',colorMatrix:null };
+            const $ = id => document.getElementById(id);
+            const dom = {
+                modeSwitcher:$('modeSwitcher'),imageCard:$('imageCard'),textCard:$('textCard'),drawCard:$('drawCard'),cameraCard:$('cameraCard'),
+                dropZone:$('dropZone'),fileInput:$('fileInput'),previewImg:$('previewImg'),dropIcon:$('dropIcon'),dropText:$('dropText'),
+                textArea:$('textArea'),fontSelect:$('fontSelect'),fontSizeSlider:$('fontSizeSlider'),fontSizeValue:$('fontSizeValue'),
+                boldCheck:$('boldCheck'),italicCheck:$('italicCheck'),drawCanvas:$('drawCanvas'),drawColor:$('drawColor'),drawThickness:$('drawThickness'),drawThicknessValue:$('drawThicknessValue'),
+                cameraVideo:$('cameraVideo'),filterSelect:$('filterSelect'),artOutput:$('artOutput'),colorCanvas:$('colorCanvas'),outputStats:$('outputStats'),
+                widthSlider:$('widthSlider'),widthValue:$('widthValue'),aspectSlider:$('aspectSlider'),aspectValue:$('aspectValue'),
+                chipGroup:$('chipGroup'),customCharset:$('customCharset'),viewToggle:$('viewToggle'),galleryDrawer:$('galleryDrawer'),galleryScroll:$('galleryScroll'),
+                toastStack:$('toastStack'),appContainer:$('appContainer'),btnThemeToggle:$('btnThemeToggle')
+            };
+            const toast = (m,e) => { const t = document.createElement('div'); t.className='toast-item'+(e?' error':''); t.textContent=m; dom.toastStack.appendChild(t); setTimeout(()=>t.remove(),2000); };
+            const ctxDraw = dom.drawCanvas.getContext('2d');
+            const initDrawCanvas = ()=>{ ctxDraw.fillStyle='#fff'; ctxDraw.fillRect(0,0,360,240); };
+            const applyTheme = ()=>{ document.body.classList.toggle('theme-light',state.theme==='light'); dom.btnThemeToggle.textContent=state.theme==='light'?'☀️':'🌓'; localStorage.setItem('theme',state.theme); };
+            if(state.theme==='light') applyTheme();
+            const switchMode = mode => {
+                state.mode=mode; dom.modeSwitcher.querySelectorAll('.mode-option').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+                dom.imageCard.style.display=mode==='image'?'':'none'; dom.textCard.classList.toggle('active',mode==='text'); dom.drawCard.classList.toggle('active',mode==='draw'); dom.cameraCard.classList.toggle('active',mode==='camera');
+                if(mode==='camera') startCamera(); else stopCamera();
+            };
+            const startCamera = async ()=>{ if(state.cameraStream) return; try{ state.cameraStream = await navigator.mediaDevices.getUserMedia({video:{width:320,height:240}}); dom.cameraVideo.srcObject=state.cameraStream; }catch{ toast('摄像头不可用',true); } };
+            const stopCamera = ()=>{ if(state.cameraStream){ state.cameraStream.getTracks().forEach(t=>t.stop()); state.cameraStream=null; dom.cameraVideo.srcObject=null; } };
+            const applyFilter = imageData => {
+                const d=imageData.data, filter=dom.filterSelect.value; if(filter==='none') return;
+                for(let i=0;i<d.length;i+=4){ const r=d[i],g=d[i+1],b=d[i+2];
+                    if(filter==='edge'){ const nr=d[i+4]||r,ng=d[i+5]||g,nb=d[i+6]||b; const v=(Math.abs(r-nr)+Math.abs(g-ng)+Math.abs(b-nb))>80?0:255; d[i]=d[i+1]=d[i+2]=v; }
+                    else if(filter==='invert'){ d[i]=255-r; d[i+1]=255-g; d[i+2]=255-b; }
+                    else if(filter==='grayscale'){ const gray=0.299*r+0.587*g+0.114*b; d[i]=d[i+1]=d[i+2]=gray; }
+                }
+            };
+            const generateAscii = ()=>{
+                if(!state.image) return;
+                const tw=parseInt(dom.widthSlider.value), ratio=parseInt(dom.aspectSlider.value)/100, charset=state.charset;
+                const imgRatio=state.image.naturalHeight/state.image.naturalWidth, th=Math.max(1,Math.round(tw*imgRatio*ratio));
+                const canvas=document.createElement('canvas'); canvas.width=tw; canvas.height=th; const ctx=canvas.getContext('2d');
+                ctx.drawImage(state.image,0,0,tw,th); const imgData=ctx.getImageData(0,0,tw,th); applyFilter(imgData);
+                const p=imgData.data, len=charset.length, lines=[], spans=[], matrix={width:tw,height:th,data:[]};
+                for(let y=0;y<th;y++){ let line='', colorLine='';
+                    for(let x=0;x<tw;x++){ const i=(y*tw+x)*4,r=p[i],g=p[i+1],b=p[i+2],a=p[i+3];
+                        if(a<128){ line+=' '; colorLine+='<span style="color:transparent"> </span>'; matrix.data.push({char:' ',r:0,g:0,b:0}); continue; }
+                        const gray=0.299*r+0.587*g+0.114*b, ci=Math.min(len-1,Math.max(0,Math.floor((gray/255)*(len-1)))), ch=charset[ci];
+                        line+=ch; const hex=((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1); colorLine+=`<span style="color:#${hex}">${ch}</span>`;
+                        matrix.data.push({char:ch,r,g,b});
+                    }
+                    lines.push(line); spans.push(colorLine);
+                }
+                state.asciiText=lines.join('\n'); state.asciiHtml=spans.join('<br>'); state.colorMatrix=matrix; renderOutput(); dom.outputStats.textContent=`${tw}×${th} · ${lines.length}行`;
+            };
+            const renderOutput = ()=>{
+                if(!state.asciiText){ dom.artOutput.innerHTML=''; dom.colorCanvas.style.display='none'; return; }
+                if(state.viewMode==='color' && state.colorMatrix){ dom.artOutput.style.display='none'; dom.colorCanvas.style.display='block'; drawColorCanvas(); }
+                else { dom.artOutput.style.display='block'; dom.colorCanvas.style.display='none'; dom.artOutput.textContent=state.asciiText; }
+            };
+            const drawColorCanvas = ()=>{
+                const matrix=state.colorMatrix; if(!matrix) return; const canvas=dom.colorCanvas, ctx=canvas.getContext('2d'), cw=8, lh=12;
+                canvas.width=matrix.width*cw; canvas.height=matrix.height*lh; ctx.fillStyle='#02040a'; ctx.fillRect(0,0,canvas.width,canvas.height);
+                ctx.font='10px "SF Mono","Consolas",monospace'; ctx.textBaseline='top';
+                for(let y=0;y<matrix.height;y++) for(let x=0;x<matrix.width;x++){ const item=matrix.data[y*matrix.width+x]; if(!item||item.char===' ') continue; ctx.fillStyle=`rgb(${item.r},${item.g},${item.b})`; ctx.fillText(item.char,x*cw,y*lh); }
+            };
+            const loadImageFromFile = file => { if(!file.type.startsWith('image/')) return toast('请选择图片',true); const r=new FileReader(); r.onload=e=>{ const img=new Image(); img.onload=()=>{ state.image=img; dom.previewImg.src=e.target.result; dom.previewImg.style.display='block'; dom.dropIcon.style.display='none'; dom.dropText.style.display='none'; generateAscii(); }; img.src=e.target.result; }; r.readAsDataURL(file); };
+            const loadExample = ()=>{ const c=document.createElement('canvas'); c.width=300;c.height=200; const cx=c.getContext('2d'); cx.fillStyle='#ff6b6b';cx.fillRect(0,0,300,200); cx.fillStyle='#fff';cx.font='bold 32px sans-serif';cx.fillText('ASCII',120,100); const img=new Image(); img.onload=()=>{ state.image=img; dom.previewImg.src=c.toDataURL(); dom.previewImg.style.display='block'; dom.dropIcon.style.display='none'; dom.dropText.style.display='none'; generateAscii(); }; img.src=c.toDataURL(); };
+            const generateTextImage = ()=>{ const text=dom.textArea.value.trim(); if(!text) return toast('输入文字',true); const fs=parseInt(dom.fontSizeSlider.value), ff=dom.fontSelect.value; const canvas=document.createElement('canvas'), ctx=canvas.getContext('2d'); ctx.font=`${fs}px "${ff}"`; const m=ctx.measureText(text); canvas.width=m.width+30; canvas.height=fs*1.6+20; ctx.font=`${fs}px "${ff}"`; ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height); ctx.fillStyle='#fff';ctx.fillText(text,15,fs+10); const img=new Image(); img.onload=()=>{ state.image=img;generateAscii(); }; img.src=canvas.toDataURL(); };
+            const getDrawCoords = e => { const rect=dom.drawCanvas.getBoundingClientRect(), sx=360/rect.width, sy=240/rect.height; let cx,cy; if(e.touches){cx=e.touches[0].clientX;cy=e.touches[0].clientY;}else{cx=e.clientX;cy=e.clientY;} return {x:(cx-rect.left)*sx,y:(cy-rect.top)*sy}; };
+            dom.drawCanvas.addEventListener('mousedown',e=>{e.preventDefault();state.isDrawing=true;const c=getDrawCoords(e);ctxDraw.beginPath();ctxDraw.moveTo(c.x,c.y);});
+            dom.drawCanvas.addEventListener('mousemove',e=>{if(!state.isDrawing)return;e.preventDefault();const c=getDrawCoords(e);ctxDraw.lineTo(c.x,c.y);ctxDraw.strokeStyle=state.isEraser?'#fff':dom.drawColor.value;ctxDraw.lineWidth=parseInt(dom.drawThickness.value);ctxDraw.lineCap='round';ctxDraw.stroke();});
+            dom.drawCanvas.addEventListener('mouseup',()=>state.isDrawing=false); dom.drawCanvas.addEventListener('mouseleave',()=>state.isDrawing=false);
+            dom.drawCanvas.addEventListener('touchstart',e=>{e.preventDefault();state.isDrawing=true;const c=getDrawCoords(e);ctxDraw.beginPath();ctxDraw.moveTo(c.x,c.y);},{passive:false});
+            dom.drawCanvas.addEventListener('touchmove',e=>{if(!state.isDrawing)return;e.preventDefault();const c=getDrawCoords(e);ctxDraw.lineTo(c.x,c.y);ctxDraw.strokeStyle=state.isEraser?'#fff':dom.drawColor.value;ctxDraw.lineWidth=parseInt(dom.drawThickness.value);ctxDraw.stroke();},{passive:false});
+            dom.drawCanvas.addEventListener('touchend',()=>state.isDrawing=false);
+            $('btnClearDraw').addEventListener('click',initDrawCanvas); $('btnEraser').addEventListener('click',()=>{state.isEraser=!state.isEraser;$('btnEraser').textContent=state.isEraser?'🖌️画笔':'🧽橡皮';});
+            $('btnGenerateDraw').addEventListener('click',()=>{const img=new Image();img.onload=()=>{state.image=img;generateAscii();};img.src=dom.drawCanvas.toDataURL();});
+            const GALLERY_KEY='ascii_gallery'; const loadGallery=()=>{try{return JSON.parse(localStorage.getItem(GALLERY_KEY)||'[]')}catch{return[]}};
+            const saveToGallery=text=>{const g=loadGallery();g.unshift({text,date:Date.now()});if(g.length>20)g.pop();localStorage.setItem(GALLERY_KEY,JSON.stringify(g));renderGallery();};
+            const renderGallery=()=>{const g=loadGallery();dom.galleryScroll.innerHTML=g.map((item,i)=>`<div class="gallery-thumb" data-index="${i}">${item.text.slice(0,70)}</div>`).join('');dom.galleryScroll.querySelectorAll('.gallery-thumb').forEach(el=>el.addEventListener('click',()=>{const idx=parseInt(el.dataset.index);const items=loadGallery();if(items[idx]){state.asciiText=items[idx].text;state.asciiHtml='';state.colorMatrix=null;renderOutput();}}));};
+            const copyToClipboard=async()=>{if(!state.asciiText)return toast('无内容',true);const content=(state.viewMode==='color'&&state.asciiHtml)?state.asciiHtml:state.asciiText;try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(content);else{const ta=document.createElement('textarea');ta.value=content;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);}toast('已复制');}catch{toast('复制失败',true);}};
+            $('btnDownloadTxt').addEventListener('click',()=>{if(!state.asciiText)return;const blob=new Blob([state.asciiText],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ascii.txt';a.click();});
+            $('btnDownloadPng').addEventListener('click',()=>{if(!state.asciiText)return;const lines=state.asciiText.split('\n');const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');ctx.font='10px monospace';const maxW=Math.max(...lines.map(l=>ctx.measureText(l).width));canvas.width=maxW+24;canvas.height=lines.length*12+24;ctx.fillStyle='#02040a';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#b4e0b4';lines.forEach((l,i)=>ctx.fillText(l,12,15+i*12));const a=document.createElement('a');a.href=canvas.toDataURL();a.download='ascii.png';a.click();});
+            dom.modeSwitcher.addEventListener('click',e=>{const btn=e.target.closest('.mode-option');if(btn)switchMode(btn.dataset.mode);});
+            dom.dropZone.addEventListener('click',e=>{if(e.target!==dom.fileInput&&e.target!==dom.previewImg)dom.fileInput.click();});
+            dom.fileInput.addEventListener('change',e=>{if(e.target.files[0])loadImageFromFile(e.target.files[0]);});
+            dom.dropZone.addEventListener('dragover',e=>{e.preventDefault();dom.dropZone.classList.add('drag-over');});
+            dom.dropZone.addEventListener('dragleave',()=>dom.dropZone.classList.remove('drag-over'));
+            dom.dropZone.addEventListener('drop',e=>{e.preventDefault();dom.dropZone.classList.remove('drag-over');if(e.dataTransfer.files[0])loadImageFromFile(e.dataTransfer.files[0]);});
+            $('btnLoadExample').addEventListener('click',loadExample);
+            $('btnGenerateText').addEventListener('click',generateTextImage);
+            dom.fontSizeSlider.addEventListener('input',()=>dom.fontSizeValue.textContent=dom.fontSizeSlider.value);
+            dom.drawThickness.addEventListener('input',()=>dom.drawThicknessValue.textContent=dom.drawThickness.value);
+            $('btnCaptureCamera').addEventListener('click',()=>{if(!state.cameraStream)return toast('请先切换摄像头',true);const c=document.createElement('canvas');c.width=dom.cameraVideo.videoWidth;c.height=dom.cameraVideo.videoHeight;c.getContext('2d').drawImage(dom.cameraVideo,0,0);const img=new Image();img.onload=()=>{state.image=img;generateAscii();};img.src=c.toDataURL();});
+            dom.filterSelect.addEventListener('change',()=>{if(state.image)generateAscii();});
+            dom.widthSlider.addEventListener('input',()=>{dom.widthValue.textContent=dom.widthSlider.value;if(state.image)generateAscii();});
+            dom.aspectSlider.addEventListener('input',()=>{dom.aspectValue.textContent=(parseInt(dom.aspectSlider.value)/100).toFixed(2);if(state.image)generateAscii();});
+            dom.chipGroup.addEventListener('click',e=>{const chip=e.target.closest('.chip');if(!chip)return;state.charset=chip.dataset.charset;dom.chipGroup.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));chip.classList.add('active');dom.customCharset.value='';if(state.image)generateAscii();});
+            dom.customCharset.addEventListener('input',e=>{if(e.target.value.length>=2){state.charset=e.target.value;dom.chipGroup.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));if(state.image)generateAscii();}});
+            dom.viewToggle.addEventListener('click',e=>{const btn=e.target.closest('.view-option');if(!btn)return;state.viewMode=btn.dataset.view;dom.viewToggle.querySelectorAll('.view-option').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderOutput();});
+            $('btnSaveToGallery').addEventListener('click',()=>{if(!state.asciiText)return toast('无内容',true);saveToGallery(state.asciiText);toast('已收藏');});
+            $('btnGalleryToggle').addEventListener('click',()=>{dom.galleryDrawer.classList.toggle('open');if(dom.galleryDrawer.classList.contains('open'))renderGallery();});
+            $('btnClearGallery').addEventListener('click',()=>{localStorage.removeItem(GALLERY_KEY);renderGallery();toast('已清空');});
+            $('btnCopy').addEventListener('click',copyToClipboard);
+            $('btnReset').addEventListener('click',()=>{state.image=null;state.asciiText='';state.asciiHtml='';state.colorMatrix=null;dom.artOutput.innerHTML='';dom.colorCanvas.style.display='none';dom.previewImg.style.display='none';dom.dropIcon.style.display='';dom.dropText.style.display='';dom.fileInput.value='';dom.textArea.value='';dom.filterSelect.value='none';dom.widthSlider.value=100;dom.aspectSlider.value=50;dom.widthValue.textContent='100';dom.aspectValue.textContent='0.50';initDrawCanvas();stopCamera();toast('已重置');});
+            dom.btnThemeToggle.addEventListener('click',()=>{state.theme=state.theme==='dark'?'light':'dark';applyTheme();});
+            $('btnFullscreen').addEventListener('click',()=>{if(!document.fullscreenElement)dom.appContainer.requestFullscreen();else document.exitFullscreen();});
+            $('btnShare').addEventListener('click',()=>{if(!state.asciiText)return;const text=`我用图片文字化工具创作了ASCII艺术！\n${state.asciiText.slice(0,400)}...\n在线体验：${location.href}`;if(navigator.share)navigator.share({title:'ASCII',text});else navigator.clipboard.writeText(text).then(()=>toast('分享文本已复制'));});
+            $('btnRandom').addEventListener('click',()=>{const inspos=[{type:'text',text:'Hello World',font:'Arial',size:40},{type:'text',text:'ASCII ART',font:'黑体',size:48},{type:'draw',pattern:'circles'}];const inspo=inspos[Math.floor(Math.random()*inspos.length)];if(inspo.type==='text'){dom.textArea.value=inspo.text;dom.fontSelect.value=inspo.font;dom.fontSizeSlider.value=inspo.size;dom.fontSizeValue.textContent=inspo.size;switchMode('text');generateTextImage();}else{switchMode('draw');initDrawCanvas();for(let i=0;i<8;i++){ctxDraw.beginPath();ctxDraw.arc(Math.random()*360,Math.random()*240,20+Math.random()*30,0,Math.PI*2);ctxDraw.fillStyle=`hsl(${Math.random()*360},70%,60%)`;ctxDraw.fill();}const img=new Image();img.onload=()=>{state.image=img;generateAscii();};img.src=dom.drawCanvas.toDataURL();}toast('随机灵感已生成！');});
+            document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();if(state.mode==='text')generateTextImage();else if(state.mode==='draw')$('btnGenerateDraw').click();else if(state.image)generateAscii();else toast('请先提供素材',true);}});
+            initDrawCanvas(); renderGallery(); switchMode('image');
+            console.log('🚀 图片文字化工具 v1.0 最终发布版');
+        })();
+    </script>
+</body>
+</html>
