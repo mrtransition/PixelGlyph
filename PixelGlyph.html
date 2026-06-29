@@ -490,7 +490,7 @@
             return (crc^0xFFFFFFFF)>>>0;
         }
 
-        function createZIP(files){
+        async function createZIP(files){
             const encoder=new TextEncoder();
             let localParts=[],centralParts=[],offset=0;
             for(const f of files){
