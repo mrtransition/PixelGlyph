@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>像素字符 · 图片文字化工具 | 最终发布版</title>
+    <title>PixelGlyph Pro · 企业级像素字符生成</title>
     <style>
         :root {
             --bg: #05070c;
@@ -43,21 +43,20 @@
         .header-tools{display:flex;gap:4px;}
         .tool-btn{width:34px;height:34px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition);}
         .tool-btn:hover{background:rgba(167,139,250,0.14);border-color:var(--accent);color:var(--accent);}
-        .main-grid{display:grid;grid-template-columns:410px 1fr;flex:1;min-height:0;}
+        .main-grid{display:grid;grid-template-columns:420px 1fr;flex:1;min-height:0;}
         @media(max-width:920px){.main-grid{grid-template-columns:1fr;}.control-panel{max-height:42vh;}}
-        .control-panel{padding:16px 18px;display:flex;flex-direction:column;gap:12px;border-right:1px solid var(--border);background:rgba(0,0,0,0.08);overflow-y:auto;scrollbar-width:none;}
+        .control-panel{padding:16px 18px;display:flex;flex-direction:column;gap:10px;border-right:1px solid var(--border);background:rgba(0,0,0,0.08);overflow-y:auto;scrollbar-width:none;}
         .control-panel::-webkit-scrollbar{display:none;}
         .mode-switcher{display:flex;background:rgba(255,255,255,0.025);border-radius:10px;padding:3px;gap:2px;border:1px solid var(--border);}
         .mode-option{flex:1;text-align:center;padding:8px 3px;border-radius:8px;font-size:0.7rem;font-weight:600;cursor:pointer;color:var(--text-secondary);background:transparent;border:none;transition:var(--transition);}
         .mode-option.active{background:var(--accent);color:#fff;box-shadow:0 3px 10px var(--accent-glow);}
         .card{background:var(--surface-elevated);border-radius:var(--radius-md);border:1px solid var(--border);padding:14px;backdrop-filter:blur(6px);}
         .drop-zone{border:2px dashed rgba(255,255,255,0.12);border-radius:16px;padding:20px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;min-height:100px;text-align:center;overflow:hidden;}
-        .drop-zone:hover{border-color:var(--accent);background:rgba(167,139,250,0.05);}
+        .drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:rgba(167,139,250,0.1);}
         .image-preview{max-width:100%;max-height:90px;width:auto;height:auto;object-fit:contain;margin:0 auto;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.45);}
         .mode-content{display:none;flex-direction:column;gap:10px;}
         .mode-content.active{display:flex;}
 
-        /* 表单控件统一 */
         textarea, select, input {
             background: rgba(255,255,255,0.04);
             border: 1px solid var(--border);
@@ -73,8 +72,6 @@
             border-color: var(--accent);
             box-shadow: 0 0 0 3px var(--accent-glow);
         }
-
-        /* 下拉列表深度修复 */
         select {
             background-color: var(--dropdown-bg) !important;
             color: var(--dropdown-text) !important;
@@ -92,14 +89,8 @@
             background-color: var(--dropdown-bg) !important;
             color: var(--dropdown-text) !important;
         }
-        /* 针对IE/Edge */
-        select::-ms-expand {
-            display: none;
-        }
-        /* 输入框datalist箭头隐藏 */
-        input::-webkit-calendar-picker-indicator {
-            opacity: 0.6;
-        }
+        select::-ms-expand{display:none;}
+        input::-webkit-calendar-picker-indicator{opacity:0.6;}
 
         .section-label{font-size:0.66rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;margin-bottom:4px;}
         .chip-group{display:flex;flex-wrap:wrap;gap:4px;}
@@ -131,12 +122,27 @@
         .toast-stack{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:9999;pointer-events:none;}
         .toast-item{background:#1f2937;color:#fff;padding:8px 16px;border-radius:18px;font-size:0.78rem;box-shadow:0 6px 18px rgba(0,0,0,0.55);animation:toastIn 0.3s ease;margin-bottom:6px;}
         @keyframes toastIn{from{opacity:0;transform:translateY(-10px);}}
+
+        .param-row{display:flex;align-items:center;gap:8px;margin:3px 0;}
+        .param-row label{font-size:0.66rem;color:var(--text-secondary);min-width:48px;flex-shrink:0;}
+        .param-row input[type="range"]{flex:1;}
+        .toggle-row{display:flex;align-items:center;gap:10px;margin:4px 0;flex-wrap:wrap;}
+        .toggle-row label{font-size:0.7rem;cursor:pointer;display:flex;align-items:center;gap:4px;color:var(--text-secondary);}
+
+        .batch-bar{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;max-height:80px;overflow-y:auto;padding:2px;}
+        .batch-thumb{width:54px;height:40px;border-radius:4px;overflow:hidden;cursor:pointer;border:2px solid transparent;position:relative;flex-shrink:0;}
+        .batch-thumb.active{border-color:var(--accent);}
+        .batch-thumb img{width:100%;height:100%;object-fit:cover;}
+        .batch-thumb .del-btn{position:absolute;top:-5px;right:-5px;width:16px;height:16px;border-radius:50%;background:#ef4444;color:#fff;font-size:10px;line-height:16px;text-align:center;cursor:pointer;border:none;display:none;padding:0;}
+        .batch-thumb:hover .del-btn{display:block;}
+        .batch-row{display:flex;gap:6px;margin-top:6px;}
+        .batch-row button{flex:1;}
     </style>
 </head>
 <body>
     <div class="app-container" id="appContainer">
         <header class="app-header">
-            <div style="display:flex;align-items:center;gap:10px;"><div class="logo-mark">🎨</div><span style="font-size:1.15rem;font-weight:700;">图片文字化工具</span></div>
+            <div style="display:flex;align-items:center;gap:10px;"><div class="logo-mark">🎨</div><span style="font-size:1.15rem;font-weight:700;">PixelGlyph Pro</span></div>
             <div class="header-tools">
                 <button class="tool-btn" id="btnRandom" title="随机灵感 (Ctrl+Shift+R)">🎲</button>
                 <button class="tool-btn" id="btnThemeToggle" title="切换主题">🌓</button>
@@ -153,8 +159,10 @@
                     <button class="mode-option" data-mode="camera">📷 摄像头</button>
                 </div>
                 <div class="card" id="imageCard">
-                    <div class="drop-zone" id="dropZone"><span class="drop-icon" id="dropIcon">🖼️</span><p class="drop-text" id="dropText">点击或拖放图片</p><p class="drop-hint">JPG/PNG/WebP/GIF</p><input type="file" id="fileInput" accept="image/*" hidden><img id="previewImg" class="image-preview" style="display:none;" alt="预览"></div>
-                    <button class="btn-outline btn-full" id="btnLoadExample" style="margin-top:10px;">📸 加载示例</button>
+                    <div class="drop-zone" id="dropZone"><span class="drop-icon" id="dropIcon">🖼️</span><p class="drop-text" id="dropText">点击或拖放图片</p><p class="drop-hint">JPG/PNG/WebP/GIF · 支持多选批量</p><input type="file" id="fileInput" accept="image/*" multiple hidden><img id="previewImg" class="image-preview" style="display:none;" alt="预览"></div>
+                    <button class="btn-outline btn-full" id="btnLoadExample" style="margin-top:8px;">📸 加载示例</button>
+                    <div class="batch-bar" id="batchBar"></div>
+                    <div class="batch-row" id="batchRow" style="display:none;"><button class="btn-outline" id="btnBatchGenerate">⚡ 批量生成</button><button class="btn-outline" id="btnBatchExport">📦 ZIP导出</button></div>
                 </div>
                 <div class="mode-content card" id="textCard">
                     <textarea id="textArea" placeholder="输入文字内容…" rows="2"></textarea>
@@ -175,9 +183,10 @@
                     <video id="cameraVideo" autoplay playsinline style="width:100%;border-radius:8px;background:#000;min-height:150px;"></video>
                     <button class="btn-primary btn-full" id="btnCaptureCamera">📸 捕获当前帧</button>
                 </div>
-                <div class="card"><div class="section-label">🎞️ 滤镜</div><select id="filterSelect"><option value="none">无</option><option value="edge">边缘</option><option value="invert">反相</option><option value="grayscale">灰度</option></select></div>
-                <div class="card"><div class="section-label">🔤 字符集</div><div class="chip-group" id="chipGroup"><span class="chip active" data-charset=" .:-=+*#%@">标准</span><span class="chip" data-charset=" ░▒▓█">方块</span><span class="chip" data-charset=" .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$">精细</span><span class="chip" data-charset=" 🎨🖌️🖍️✏️📏📐✂️📌📍📎🔗">Emoji</span></div><input type="text" id="customCharset" placeholder="自定义字符集(从暗到亮)" style="margin-top:8px;"></div>
+                <div class="card"><div class="section-label">🎞️ 滤镜</div><select id="filterSelect"><option value="none">无</option><option value="grayscale">灰度</option><option value="invert">反相</option><option value="sepia">棕褐色</option><option value="edge">边缘检测</option><option value="edge_enhance">边缘增强</option><option value="sharpen">锐化</option><option value="blur">模糊</option><option value="emboss">浮雕</option><option value="pixelate">像素化</option></select></div>
+                <div class="card"><div class="section-label">🔤 字符集</div><div class="chip-group" id="chipGroup"><span class="chip active" data-charset=" .:-=+*#%@">标准</span><span class="chip" data-charset=" ░▒▓█">方块</span><span class="chip" data-charset=" .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$">精细</span><span class="chip" data-charset=" 🎨🖌️🖍️✏️📏📐✂️📌📍📎🔗">Emoji</span><span class="chip" data-charset=" ⠁⠂⠃⠄⠅⠆⠇⠈⠉⠊⠋⠌⠍⠎⠏⠐⠑⠒⠓⠔⠕⠖⠗⠘⠙⠚⠛⠜⠝⠞⠟⠠⠡⠢⠣⠤⠥⠦⠧⠨⠩⠪⠫⠬⠭⠮⠯⠰⠱⠲⠳⠴⠵⠶⠷⠸⠹⠺⠻⠼⠽⠾⠿">盲文</span><span class="chip" data-charset="0123456789ABCDEF">十六进制</span><span class="chip" data-charset="01">二进制</span></div><input type="text" id="customCharset" placeholder="自定义字符集(从暗到亮)" style="margin-top:8px;"></div>
                 <div class="card"><div class="section-label">📏 宽度</div><div class="slider-row"><input type="range" id="widthSlider" min="40" max="200" value="100" step="5"><span class="badge-val" id="widthValue">100</span></div><div class="section-label" style="margin-top:12px;">📐 高宽比</div><div class="slider-row"><input type="range" id="aspectSlider" min="30" max="80" value="50" step="2"><span class="badge-val" id="aspectValue">0.50</span></div></div>
+                <div class="card"><div class="section-label">⚙️ 高级参数</div><div class="param-row"><label>亮度</label><input type="range" id="brightnessSlider" min="-100" max="100" value="0"><span class="badge-val" id="brightnessValue">0</span></div><div class="param-row"><label>对比度</label><input type="range" id="contrastSlider" min="-100" max="100" value="0"><span class="badge-val" id="contrastValue">0</span></div><div class="toggle-row"><label><input type="checkbox" id="ditherCheck"> 抖动</label><label><input type="checkbox" id="invertCheck"> 反转映射</label></div></div>
                 <div style="display:flex;gap:8px;"><button class="btn-outline" id="btnReset" style="flex:1;">↺ 重置</button><button class="btn-outline" id="btnGalleryToggle" style="flex:1;">🖼️ 画廊</button></div>
             </aside>
             <section class="output-panel">
@@ -185,123 +194,418 @@
                 <div class="art-output" id="artOutput" contenteditable="false" spellcheck="false"></div>
                 <canvas class="color-canvas" id="colorCanvas"></canvas>
                 <div class="gallery-drawer" id="galleryDrawer"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:0.68rem;">📁 作品库</span><button class="btn-outline" id="btnClearGallery" style="padding:2px 8px;font-size:0.58rem;">清空</button></div><div class="gallery-scroll" id="galleryScroll"></div></div>
-                <div class="action-row"><button class="btn-success" id="btnCopy">📋 复制</button><button class="btn-outline" id="btnSaveToGallery">💾 收藏</button><button class="btn-outline" id="btnDownloadTxt">📄 TXT</button><button class="btn-outline" id="btnDownloadPng">🖼️ PNG</button></div>
+                <div class="action-row"><button class="btn-success" id="btnCopy">📋 复制</button><button class="btn-outline" id="btnSaveToGallery">💾 收藏</button><button class="btn-outline" id="btnDownloadTxt">📄 TXT</button><button class="btn-outline" id="btnDownloadPng">🖼️ PNG</button><button class="btn-outline" id="btnDownloadSvg">📐 SVG</button><button class="btn-outline" id="btnDownloadHtml">🌐 HTML</button></div>
             </section>
         </div>
     </div>
     <div class="toast-stack" id="toastStack"></div>
-
     <script>
-        (function() {
-            const state = { mode:'image',image:null,asciiText:'',asciiHtml:'',charset:' .:-=+*#%@',viewMode:'plain',isEraser:false,isDrawing:false,cameraStream:null,theme:localStorage.getItem('theme')||'dark',colorMatrix:null };
-            const $ = id => document.getElementById(id);
-            const dom = {
-                modeSwitcher:$('modeSwitcher'),imageCard:$('imageCard'),textCard:$('textCard'),drawCard:$('drawCard'),cameraCard:$('cameraCard'),
-                dropZone:$('dropZone'),fileInput:$('fileInput'),previewImg:$('previewImg'),dropIcon:$('dropIcon'),dropText:$('dropText'),
-                textArea:$('textArea'),fontSelect:$('fontSelect'),fontSizeSlider:$('fontSizeSlider'),fontSizeValue:$('fontSizeValue'),
-                boldCheck:$('boldCheck'),italicCheck:$('italicCheck'),drawCanvas:$('drawCanvas'),drawColor:$('drawColor'),drawThickness:$('drawThickness'),drawThicknessValue:$('drawThicknessValue'),
-                cameraVideo:$('cameraVideo'),filterSelect:$('filterSelect'),artOutput:$('artOutput'),colorCanvas:$('colorCanvas'),outputStats:$('outputStats'),
-                widthSlider:$('widthSlider'),widthValue:$('widthValue'),aspectSlider:$('aspectSlider'),aspectValue:$('aspectValue'),
-                chipGroup:$('chipGroup'),customCharset:$('customCharset'),viewToggle:$('viewToggle'),galleryDrawer:$('galleryDrawer'),galleryScroll:$('galleryScroll'),
-                toastStack:$('toastStack'),appContainer:$('appContainer'),btnThemeToggle:$('btnThemeToggle')
-            };
-            const toast = (m,e) => { const t = document.createElement('div'); t.className='toast-item'+(e?' error':''); t.textContent=m; dom.toastStack.appendChild(t); setTimeout(()=>t.remove(),2000); };
-            const ctxDraw = dom.drawCanvas.getContext('2d');
-            const initDrawCanvas = ()=>{ ctxDraw.fillStyle='#fff'; ctxDraw.fillRect(0,0,360,240); };
-            const applyTheme = ()=>{ document.body.classList.toggle('theme-light',state.theme==='light'); dom.btnThemeToggle.textContent=state.theme==='light'?'☀️':'🌓'; localStorage.setItem('theme',state.theme); };
-            if(state.theme==='light') applyTheme();
-            const switchMode = mode => {
-                state.mode=mode; dom.modeSwitcher.querySelectorAll('.mode-option').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
-                dom.imageCard.style.display=mode==='image'?'':'none'; dom.textCard.classList.toggle('active',mode==='text'); dom.drawCard.classList.toggle('active',mode==='draw'); dom.cameraCard.classList.toggle('active',mode==='camera');
-                if(mode==='camera') startCamera(); else stopCamera();
-            };
-            const startCamera = async ()=>{ if(state.cameraStream) return; try{ state.cameraStream = await navigator.mediaDevices.getUserMedia({video:{width:320,height:240}}); dom.cameraVideo.srcObject=state.cameraStream; }catch{ toast('摄像头不可用',true); } };
-            const stopCamera = ()=>{ if(state.cameraStream){ state.cameraStream.getTracks().forEach(t=>t.stop()); state.cameraStream=null; dom.cameraVideo.srcObject=null; } };
-            const applyFilter = imageData => {
-                const d=imageData.data, filter=dom.filterSelect.value; if(filter==='none') return;
-                for(let i=0;i<d.length;i+=4){ const r=d[i],g=d[i+1],b=d[i+2];
-                    if(filter==='edge'){ const nr=d[i+4]||r,ng=d[i+5]||g,nb=d[i+6]||b; const v=(Math.abs(r-nr)+Math.abs(g-ng)+Math.abs(b-nb))>80?0:255; d[i]=d[i+1]=d[i+2]=v; }
-                    else if(filter==='invert'){ d[i]=255-r; d[i+1]=255-g; d[i+2]=255-b; }
-                    else if(filter==='grayscale'){ const gray=0.299*r+0.587*g+0.114*b; d[i]=d[i+1]=d[i+2]=gray; }
-                }
-            };
-            const generateAscii = ()=>{
-                if(!state.image) return;
-                const tw=parseInt(dom.widthSlider.value), ratio=parseInt(dom.aspectSlider.value)/100, charset=state.charset;
-                const imgRatio=state.image.naturalHeight/state.image.naturalWidth, th=Math.max(1,Math.round(tw*imgRatio*ratio));
-                const canvas=document.createElement('canvas'); canvas.width=tw; canvas.height=th; const ctx=canvas.getContext('2d');
-                ctx.drawImage(state.image,0,0,tw,th); const imgData=ctx.getImageData(0,0,tw,th); applyFilter(imgData);
-                const p=imgData.data, len=charset.length, lines=[], spans=[], matrix={width:tw,height:th,data:[]};
-                for(let y=0;y<th;y++){ let line='', colorLine='';
-                    for(let x=0;x<tw;x++){ const i=(y*tw+x)*4,r=p[i],g=p[i+1],b=p[i+2],a=p[i+3];
-                        if(a<128){ line+=' '; colorLine+='<span style="color:transparent"> </span>'; matrix.data.push({char:' ',r:0,g:0,b:0}); continue; }
-                        const gray=0.299*r+0.587*g+0.114*b, ci=Math.min(len-1,Math.max(0,Math.floor((gray/255)*(len-1)))), ch=charset[ci];
-                        line+=ch; const hex=((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1); colorLine+=`<span style="color:#${hex}">${ch}</span>`;
-                        matrix.data.push({char:ch,r,g,b});
+    (function(){
+        const state = {
+            mode:'image',image:null,asciiText:'',asciiHtml:'',charset:' .:-=+*#%@',viewMode:'plain',
+            isEraser:false,isDrawing:false,cameraStream:null,
+            theme:localStorage.getItem('theme')||'dark',colorMatrix:null,
+            images:[],activeBatchIndex:-1,brightness:0,contrast:0,dither:false,invertMapping:false
+        };
+        const $=id=>document.getElementById(id);
+        const dom = {
+            modeSwitcher:$('modeSwitcher'),imageCard:$('imageCard'),textCard:$('textCard'),drawCard:$('drawCard'),cameraCard:$('cameraCard'),
+            dropZone:$('dropZone'),fileInput:$('fileInput'),previewImg:$('previewImg'),dropIcon:$('dropIcon'),dropText:$('dropText'),
+            textArea:$('textArea'),fontSelect:$('fontSelect'),fontSizeSlider:$('fontSizeSlider'),fontSizeValue:$('fontSizeValue'),
+            boldCheck:$('boldCheck'),italicCheck:$('italicCheck'),drawCanvas:$('drawCanvas'),drawColor:$('drawColor'),
+            drawThickness:$('drawThickness'),drawThicknessValue:$('drawThicknessValue'),
+            cameraVideo:$('cameraVideo'),filterSelect:$('filterSelect'),artOutput:$('artOutput'),colorCanvas:$('colorCanvas'),outputStats:$('outputStats'),
+            widthSlider:$('widthSlider'),widthValue:$('widthValue'),aspectSlider:$('aspectSlider'),aspectValue:$('aspectValue'),
+            chipGroup:$('chipGroup'),customCharset:$('customCharset'),viewToggle:$('viewToggle'),
+            galleryDrawer:$('galleryDrawer'),galleryScroll:$('galleryScroll'),
+            toastStack:$('toastStack'),appContainer:$('appContainer'),btnThemeToggle:$('btnThemeToggle'),
+            batchBar:$('batchBar'),batchRow:$('batchRow'),brightnessSlider:$('brightnessSlider'),brightnessValue:$('brightnessValue'),
+            contrastSlider:$('contrastSlider'),contrastValue:$('contrastValue'),ditherCheck:$('ditherCheck'),invertCheck:$('invertCheck')
+        };
+        const clamp=v=>Math.min(255,Math.max(0,Math.round(v)));
+        const toast=(m,e)=>{const t=document.createElement('div');t.className='toast-item'+(e?' error':'');t.textContent=m;dom.toastStack.appendChild(t);setTimeout(()=>t.remove(),2000);};
+        const getExt=(name)=>{const i=name.lastIndexOf('.');return i>0?name.slice(i+1).toLowerCase():'png';};
+
+        const ctxDraw=dom.drawCanvas.getContext('2d');
+        const initDrawCanvas=()=>{ctxDraw.fillStyle='#fff';ctxDraw.fillRect(0,0,360,240);};
+        const applyTheme=()=>{document.body.classList.toggle('theme-light',state.theme==='light');dom.btnThemeToggle.textContent=state.theme==='light'?'☀️':'🌓';localStorage.setItem('theme',state.theme);};
+        if(state.theme==='light')applyTheme();
+
+        const switchMode=mode=>{
+            state.mode=mode;dom.modeSwitcher.querySelectorAll('.mode-option').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+            dom.imageCard.style.display=mode==='image'?'':'none';dom.textCard.classList.toggle('active',mode==='text');
+            dom.drawCard.classList.toggle('active',mode==='draw');dom.cameraCard.classList.toggle('active',mode==='camera');
+            if(mode==='camera')startCamera();else stopCamera();
+        };
+        const startCamera=async()=>{if(state.cameraStream)return;try{state.cameraStream=await navigator.mediaDevices.getUserMedia({video:{width:320,height:240}});dom.cameraVideo.srcObject=state.cameraStream;}catch{toast('摄像头不可用',true);}};
+        const stopCamera=()=>{if(state.cameraStream){state.cameraStream.getTracks().forEach(t=>t.stop());state.cameraStream=null;dom.cameraVideo.srcObject=null;}};
+
+        function applyConvolution(imgData,kernel,divisor,offset){
+            const d=imgData.data,w=imgData.width,h=imgData.height;
+            const ks=Math.round(Math.sqrt(kernel.length)),half=Math.floor(ks/2);
+            const out=new Uint8ClampedArray(d.length);
+            for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+                let r=0,g=0,b=0;
+                for(let ky=0;ky<ks;ky++)for(let kx=0;kx<ks;kx++){
+                    const px=x+kx-half,py=y+ky-half;
+                    if(px>=0&&px<w&&py>=0&&py<h){
+                        const idx=(py*w+px)*4,k=kernel[ky*ks+kx];
+                        r+=d[idx]*k;g+=d[idx+1]*k;b+=d[idx+2]*k;
                     }
-                    lines.push(line); spans.push(colorLine);
                 }
-                state.asciiText=lines.join('\n'); state.asciiHtml=spans.join('<br>'); state.colorMatrix=matrix; renderOutput(); dom.outputStats.textContent=`${tw}×${th} · ${lines.length}行`;
-            };
-            const renderOutput = ()=>{
-                if(!state.asciiText){ dom.artOutput.innerHTML=''; dom.colorCanvas.style.display='none'; return; }
-                if(state.viewMode==='color' && state.colorMatrix){ dom.artOutput.style.display='none'; dom.colorCanvas.style.display='block'; drawColorCanvas(); }
-                else { dom.artOutput.style.display='block'; dom.colorCanvas.style.display='none'; dom.artOutput.textContent=state.asciiText; }
-            };
-            const drawColorCanvas = ()=>{
-                const matrix=state.colorMatrix; if(!matrix) return; const canvas=dom.colorCanvas, ctx=canvas.getContext('2d'), cw=8, lh=12;
-                canvas.width=matrix.width*cw; canvas.height=matrix.height*lh; ctx.fillStyle='#02040a'; ctx.fillRect(0,0,canvas.width,canvas.height);
-                ctx.font='10px "SF Mono","Consolas",monospace'; ctx.textBaseline='top';
-                for(let y=0;y<matrix.height;y++) for(let x=0;x<matrix.width;x++){ const item=matrix.data[y*matrix.width+x]; if(!item||item.char===' ') continue; ctx.fillStyle=`rgb(${item.r},${item.g},${item.b})`; ctx.fillText(item.char,x*cw,y*lh); }
-            };
-            const loadImageFromFile = file => { if(!file.type.startsWith('image/')) return toast('请选择图片',true); const r=new FileReader(); r.onload=e=>{ const img=new Image(); img.onload=()=>{ state.image=img; dom.previewImg.src=e.target.result; dom.previewImg.style.display='block'; dom.dropIcon.style.display='none'; dom.dropText.style.display='none'; generateAscii(); }; img.src=e.target.result; }; r.readAsDataURL(file); };
-            const loadExample = ()=>{ const c=document.createElement('canvas'); c.width=300;c.height=200; const cx=c.getContext('2d'); cx.fillStyle='#ff6b6b';cx.fillRect(0,0,300,200); cx.fillStyle='#fff';cx.font='bold 32px sans-serif';cx.fillText('ASCII',120,100); const img=new Image(); img.onload=()=>{ state.image=img; dom.previewImg.src=c.toDataURL(); dom.previewImg.style.display='block'; dom.dropIcon.style.display='none'; dom.dropText.style.display='none'; generateAscii(); }; img.src=c.toDataURL(); };
-            const generateTextImage = ()=>{ const text=dom.textArea.value.trim(); if(!text) return toast('输入文字',true); const fs=parseInt(dom.fontSizeSlider.value), ff=dom.fontSelect.value; const canvas=document.createElement('canvas'), ctx=canvas.getContext('2d'); ctx.font=`${fs}px "${ff}"`; const m=ctx.measureText(text); canvas.width=m.width+30; canvas.height=fs*1.6+20; ctx.font=`${fs}px "${ff}"`; ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height); ctx.fillStyle='#fff';ctx.fillText(text,15,fs+10); const img=new Image(); img.onload=()=>{ state.image=img;generateAscii(); }; img.src=canvas.toDataURL(); };
-            const getDrawCoords = e => { const rect=dom.drawCanvas.getBoundingClientRect(), sx=360/rect.width, sy=240/rect.height; let cx,cy; if(e.touches){cx=e.touches[0].clientX;cy=e.touches[0].clientY;}else{cx=e.clientX;cy=e.clientY;} return {x:(cx-rect.left)*sx,y:(cy-rect.top)*sy}; };
-            dom.drawCanvas.addEventListener('mousedown',e=>{e.preventDefault();state.isDrawing=true;const c=getDrawCoords(e);ctxDraw.beginPath();ctxDraw.moveTo(c.x,c.y);});
-            dom.drawCanvas.addEventListener('mousemove',e=>{if(!state.isDrawing)return;e.preventDefault();const c=getDrawCoords(e);ctxDraw.lineTo(c.x,c.y);ctxDraw.strokeStyle=state.isEraser?'#fff':dom.drawColor.value;ctxDraw.lineWidth=parseInt(dom.drawThickness.value);ctxDraw.lineCap='round';ctxDraw.stroke();});
-            dom.drawCanvas.addEventListener('mouseup',()=>state.isDrawing=false); dom.drawCanvas.addEventListener('mouseleave',()=>state.isDrawing=false);
-            dom.drawCanvas.addEventListener('touchstart',e=>{e.preventDefault();state.isDrawing=true;const c=getDrawCoords(e);ctxDraw.beginPath();ctxDraw.moveTo(c.x,c.y);},{passive:false});
-            dom.drawCanvas.addEventListener('touchmove',e=>{if(!state.isDrawing)return;e.preventDefault();const c=getDrawCoords(e);ctxDraw.lineTo(c.x,c.y);ctxDraw.strokeStyle=state.isEraser?'#fff':dom.drawColor.value;ctxDraw.lineWidth=parseInt(dom.drawThickness.value);ctxDraw.stroke();},{passive:false});
-            dom.drawCanvas.addEventListener('touchend',()=>state.isDrawing=false);
-            $('btnClearDraw').addEventListener('click',initDrawCanvas); $('btnEraser').addEventListener('click',()=>{state.isEraser=!state.isEraser;$('btnEraser').textContent=state.isEraser?'🖌️画笔':'🧽橡皮';});
-            $('btnGenerateDraw').addEventListener('click',()=>{const img=new Image();img.onload=()=>{state.image=img;generateAscii();};img.src=dom.drawCanvas.toDataURL();});
-            const GALLERY_KEY='ascii_gallery'; const loadGallery=()=>{try{return JSON.parse(localStorage.getItem(GALLERY_KEY)||'[]')}catch{return[]}};
-            const saveToGallery=text=>{const g=loadGallery();g.unshift({text,date:Date.now()});if(g.length>20)g.pop();localStorage.setItem(GALLERY_KEY,JSON.stringify(g));renderGallery();};
-            const renderGallery=()=>{const g=loadGallery();dom.galleryScroll.innerHTML=g.map((item,i)=>`<div class="gallery-thumb" data-index="${i}">${item.text.slice(0,70)}</div>`).join('');dom.galleryScroll.querySelectorAll('.gallery-thumb').forEach(el=>el.addEventListener('click',()=>{const idx=parseInt(el.dataset.index);const items=loadGallery();if(items[idx]){state.asciiText=items[idx].text;state.asciiHtml='';state.colorMatrix=null;renderOutput();}}));};
-            const copyToClipboard=async()=>{if(!state.asciiText)return toast('无内容',true);const content=(state.viewMode==='color'&&state.asciiHtml)?state.asciiHtml:state.asciiText;try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(content);else{const ta=document.createElement('textarea');ta.value=content;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);}toast('已复制');}catch{toast('复制失败',true);}};
-            $('btnDownloadTxt').addEventListener('click',()=>{if(!state.asciiText)return;const blob=new Blob([state.asciiText],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ascii.txt';a.click();});
-            $('btnDownloadPng').addEventListener('click',()=>{if(!state.asciiText)return;const lines=state.asciiText.split('\n');const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');ctx.font='10px monospace';const maxW=Math.max(...lines.map(l=>ctx.measureText(l).width));canvas.width=maxW+24;canvas.height=lines.length*12+24;ctx.fillStyle='#02040a';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#b4e0b4';lines.forEach((l,i)=>ctx.fillText(l,12,15+i*12));const a=document.createElement('a');a.href=canvas.toDataURL();a.download='ascii.png';a.click();});
-            dom.modeSwitcher.addEventListener('click',e=>{const btn=e.target.closest('.mode-option');if(btn)switchMode(btn.dataset.mode);});
-            dom.dropZone.addEventListener('click',e=>{if(e.target!==dom.fileInput&&e.target!==dom.previewImg)dom.fileInput.click();});
-            dom.fileInput.addEventListener('change',e=>{if(e.target.files[0])loadImageFromFile(e.target.files[0]);});
-            dom.dropZone.addEventListener('dragover',e=>{e.preventDefault();dom.dropZone.classList.add('drag-over');});
-            dom.dropZone.addEventListener('dragleave',()=>dom.dropZone.classList.remove('drag-over'));
-            dom.dropZone.addEventListener('drop',e=>{e.preventDefault();dom.dropZone.classList.remove('drag-over');if(e.dataTransfer.files[0])loadImageFromFile(e.dataTransfer.files[0]);});
-            $('btnLoadExample').addEventListener('click',loadExample);
-            $('btnGenerateText').addEventListener('click',generateTextImage);
-            dom.fontSizeSlider.addEventListener('input',()=>dom.fontSizeValue.textContent=dom.fontSizeSlider.value);
-            dom.drawThickness.addEventListener('input',()=>dom.drawThicknessValue.textContent=dom.drawThickness.value);
-            $('btnCaptureCamera').addEventListener('click',()=>{if(!state.cameraStream)return toast('请先切换摄像头',true);const c=document.createElement('canvas');c.width=dom.cameraVideo.videoWidth;c.height=dom.cameraVideo.videoHeight;c.getContext('2d').drawImage(dom.cameraVideo,0,0);const img=new Image();img.onload=()=>{state.image=img;generateAscii();};img.src=c.toDataURL();});
-            dom.filterSelect.addEventListener('change',()=>{if(state.image)generateAscii();});
-            dom.widthSlider.addEventListener('input',()=>{dom.widthValue.textContent=dom.widthSlider.value;if(state.image)generateAscii();});
-            dom.aspectSlider.addEventListener('input',()=>{dom.aspectValue.textContent=(parseInt(dom.aspectSlider.value)/100).toFixed(2);if(state.image)generateAscii();});
-            dom.chipGroup.addEventListener('click',e=>{const chip=e.target.closest('.chip');if(!chip)return;state.charset=chip.dataset.charset;dom.chipGroup.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));chip.classList.add('active');dom.customCharset.value='';if(state.image)generateAscii();});
-            dom.customCharset.addEventListener('input',e=>{if(e.target.value.length>=2){state.charset=e.target.value;dom.chipGroup.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));if(state.image)generateAscii();}});
-            dom.viewToggle.addEventListener('click',e=>{const btn=e.target.closest('.view-option');if(!btn)return;state.viewMode=btn.dataset.view;dom.viewToggle.querySelectorAll('.view-option').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderOutput();});
-            $('btnSaveToGallery').addEventListener('click',()=>{if(!state.asciiText)return toast('无内容',true);saveToGallery(state.asciiText);toast('已收藏');});
-            $('btnGalleryToggle').addEventListener('click',()=>{dom.galleryDrawer.classList.toggle('open');if(dom.galleryDrawer.classList.contains('open'))renderGallery();});
-            $('btnClearGallery').addEventListener('click',()=>{localStorage.removeItem(GALLERY_KEY);renderGallery();toast('已清空');});
-            $('btnCopy').addEventListener('click',copyToClipboard);
-            $('btnReset').addEventListener('click',()=>{state.image=null;state.asciiText='';state.asciiHtml='';state.colorMatrix=null;dom.artOutput.innerHTML='';dom.colorCanvas.style.display='none';dom.previewImg.style.display='none';dom.dropIcon.style.display='';dom.dropText.style.display='';dom.fileInput.value='';dom.textArea.value='';dom.filterSelect.value='none';dom.widthSlider.value=100;dom.aspectSlider.value=50;dom.widthValue.textContent='100';dom.aspectValue.textContent='0.50';initDrawCanvas();stopCamera();toast('已重置');});
-            dom.btnThemeToggle.addEventListener('click',()=>{state.theme=state.theme==='dark'?'light':'dark';applyTheme();});
-            $('btnFullscreen').addEventListener('click',()=>{if(!document.fullscreenElement)dom.appContainer.requestFullscreen();else document.exitFullscreen();});
-            $('btnShare').addEventListener('click',()=>{if(!state.asciiText)return;const text=`我用图片文字化工具创作了ASCII艺术！\n${state.asciiText.slice(0,400)}...\n在线体验：${location.href}`;if(navigator.share)navigator.share({title:'ASCII',text});else navigator.clipboard.writeText(text).then(()=>toast('分享文本已复制'));});
-            $('btnRandom').addEventListener('click',()=>{const inspos=[{type:'text',text:'Hello World',font:'Arial',size:40},{type:'text',text:'ASCII ART',font:'黑体',size:48},{type:'draw',pattern:'circles'}];const inspo=inspos[Math.floor(Math.random()*inspos.length)];if(inspo.type==='text'){dom.textArea.value=inspo.text;dom.fontSelect.value=inspo.font;dom.fontSizeSlider.value=inspo.size;dom.fontSizeValue.textContent=inspo.size;switchMode('text');generateTextImage();}else{switchMode('draw');initDrawCanvas();for(let i=0;i<8;i++){ctxDraw.beginPath();ctxDraw.arc(Math.random()*360,Math.random()*240,20+Math.random()*30,0,Math.PI*2);ctxDraw.fillStyle=`hsl(${Math.random()*360},70%,60%)`;ctxDraw.fill();}const img=new Image();img.onload=()=>{state.image=img;generateAscii();};img.src=dom.drawCanvas.toDataURL();}toast('随机灵感已生成！');});
-            document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();if(state.mode==='text')generateTextImage();else if(state.mode==='draw')$('btnGenerateDraw').click();else if(state.image)generateAscii();else toast('请先提供素材',true);}});
-            initDrawCanvas(); renderGallery(); switchMode('image');
-            console.log('🚀 图片文字化工具 v1.0 最终发布版');
-        })();
+                const idx=(y*w+x)*4;
+                out[idx]=clamp(r/divisor+offset);out[idx+1]=clamp(g/divisor+offset);out[idx+2]=clamp(b/divisor+offset);out[idx+3]=d[idx+3];
+            }
+            for(let i=0;i<d.length;i++)d[i]=out[i];
+        }
+
+        const applyFilter=imgData=>{
+            const d=imgData.data,filter=dom.filterSelect.value,w=imgData.width,h=imgData.height;
+            if(filter==='none')return;
+            if(filter==='edge'){
+                for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+                    const i=(y*w+x)*4,r=d[i],g=d[i+1],b=d[i+2];let edge=0;
+                    if(x<w-1){const nr=d[i+4],ng=d[i+5],nb=d[i+6];edge=Math.max(edge,Math.abs(r-nr)+Math.abs(g-ng)+Math.abs(b-nb));}
+                    if(y<h-1){const ni=i+w*4;edge=Math.max(edge,Math.abs(r-d[ni])+Math.abs(g-d[ni+1])+Math.abs(b-d[ni+2]));}
+                    const v=edge>80?0:255;d[i]=d[i+1]=d[i+2]=v;
+                }
+                return;
+            }
+            if(filter==='blur'){applyConvolution(imgData,[1,1,1,1,1,1,1,1,1],9,0);return;}
+            if(filter==='sharpen'){applyConvolution(imgData,[0,-1,0,-1,5,-1,0,-1,0],1,0);return;}
+            if(filter==='emboss'){applyConvolution(imgData,[-2,-1,0,-1,1,1,0,1,2],1,128);return;}
+            if(filter==='edge_enhance'){applyConvolution(imgData,[-1,-1,-1,-1,8,-1,-1,-1,-1],1,0);return;}
+            if(filter==='pixelate'){
+                const bs=Math.max(2,Math.floor(Math.min(w,h)/20));
+                for(let y=0;y<h;y+=bs)for(let x=0;x<w;x+=bs){
+                    let r=0,g=0,b=0,c=0;
+                    for(let dy=0;dy<bs&&y+dy<h;dy++)for(let dx=0;dx<bs&&x+dx<w;dx++){
+                        const idx=((y+dy)*w+x+dx)*4;r+=d[idx];g+=d[idx+1];b+=d[idx+2];c++;
+                    }
+                    const ar=Math.round(r/c),ag=Math.round(g/c),ab=Math.round(b/c);
+                    for(let dy=0;dy<bs&&y+dy<h;dy++)for(let dx=0;dx<bs&&x+dx<w;dx++){
+                        const idx=((y+dy)*w+x+dx)*4;d[idx]=ar;d[idx+1]=ag;d[idx+2]=ab;
+                    }
+                }
+                return;
+            }
+            for(let i=0;i<d.length;i+=4){const r=d[i],g=d[i+1],b=d[i+2];
+                if(filter==='invert'){d[i]=255-r;d[i+1]=255-g;d[i+2]=255-b;}
+                else if(filter==='grayscale'){const gray=0.299*r+0.587*g+0.114*b;d[i]=d[i+1]=d[i+2]=gray;}
+                else if(filter==='sepia'){d[i]=clamp(r*0.393+g*0.769+b*0.189);d[i+1]=clamp(r*0.349+g*0.686+b*0.168);d[i+2]=clamp(r*0.272+g*0.534+b*0.131);}
+            }
+        };
+
+        function applyBrightnessContrast(imgData,brightness,contrast){
+            if(brightness===0&&contrast===0)return;
+            const d=imgData.data,factor=contrast!==0?(259*(contrast+255))/(255*(259-contrast)):1;
+            for(let i=0;i<d.length;i+=4){
+                d[i]=clamp(factor*(d[i]-128)+128+brightness);
+                d[i+1]=clamp(factor*(d[i+1]-128)+128+brightness);
+                d[i+2]=clamp(factor*(d[i+2]-128)+128+brightness);
+            }
+        }
+
+        function applyDither(imgData,charsetLen){
+            const d=imgData.data,w=imgData.width,h=imgData.height;
+            for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+                const i=(y*w+x)*4;
+                const old=d[i];
+                const q=Math.round(old/255*(charsetLen-1))/(charsetLen-1)*255;
+                const err=old-q;
+                d[i]=d[i+1]=d[i+2]=q;
+                if(x+1<w){const ri=(y*w+x+1)*4;d[ri]=clamp(d[ri]+err*7/16);d[ri+1]=clamp(d[ri+1]+err*7/16);d[ri+2]=clamp(d[ri+2]+err*7/16);}
+                if(y+1<h){
+                    if(x>0){const li=((y+1)*w+x-1)*4;d[li]=clamp(d[li]+err*3/16);d[li+1]=clamp(d[li+1]+err*3/16);d[li+2]=clamp(d[li+2]+err*3/16);}
+                    const di=((y+1)*w+x)*4;d[di]=clamp(d[di]+err*5/16);d[di+1]=clamp(d[di+1]+err*5/16);d[di+2]=clamp(d[di+2]+err*5/16);
+                    if(x+1<w){const ri=((y+1)*w+x+1)*4;d[ri]=clamp(d[ri]+err*1/16);d[ri+1]=clamp(d[ri+1]+err*1/16);d[ri+2]=clamp(d[ri+2]+err*1/16);}
+                }
+            }
+        }
+
+        const generateAscii=()=>{
+            if(!state.image)return;
+            const tw=parseInt(dom.widthSlider.value),ratio=parseInt(dom.aspectSlider.value)/100,charset=state.charset;
+            const imgRatio=state.image.naturalHeight/state.image.naturalWidth,th=Math.max(1,Math.round(tw*imgRatio*ratio));
+            const canvas=document.createElement('canvas');canvas.width=tw;canvas.height=th;
+            const ctx=canvas.getContext('2d',{willReadFrequently:true});
+            ctx.drawImage(state.image,0,0,tw,th);const imgData=ctx.getImageData(0,0,tw,th);
+            applyFilter(imgData);
+            applyBrightnessContrast(imgData,state.brightness,state.contrast);
+            if(state.dither)applyDither(imgData,charset.length);
+            const p=imgData.data,len=charset.length,lines=[],spans=[],matrix={width:tw,height:th,data:[]};
+            for(let y=0;y<th;y++){let line='',colorLine='';
+                for(let x=0;x<tw;x++){const i=(y*tw+x)*4,r=p[i],g=p[i+1],b=p[i+2],a=p[i+3];
+                    if(a<128){line+=' ';colorLine+='<span style="color:transparent"> </span>';matrix.data.push({char:' ',r:0,g:0,b:0});continue;}
+                    const gray=0.299*r+0.587*g+0.114*b;
+                    let ci=Math.min(len-1,Math.max(0,Math.floor((gray/255)*(len-1))));
+                    if(state.invertMapping)ci=len-1-ci;
+                    const ch=charset[ci];
+                    line+=ch;const hex=((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+                    colorLine+=`<span style="color:#${hex}">${ch}</span>`;
+                    matrix.data.push({char:ch,r,g,b});
+                }
+                lines.push(line);spans.push(colorLine);
+            }
+            state.asciiText=lines.join('\n');state.asciiHtml=spans.join('<br>');state.colorMatrix=matrix;
+            renderOutput();dom.outputStats.textContent=`${tw}×${th} · ${lines.length}行`;
+        };
+
+        const renderOutput=()=>{
+            if(!state.asciiText){dom.artOutput.innerHTML='';dom.colorCanvas.style.display='none';return;}
+            if(state.viewMode==='color'&&state.colorMatrix){dom.artOutput.style.display='none';dom.colorCanvas.style.display='block';drawColorCanvas();}
+            else{dom.artOutput.style.display='block';dom.colorCanvas.style.display='none';dom.artOutput.textContent=state.asciiText;}
+        };
+        const drawColorCanvas=()=>{
+            const matrix=state.colorMatrix;if(!matrix)return;
+            const canvas=dom.colorCanvas,ctx=canvas.getContext('2d'),cw=8,lh=12;
+            canvas.width=matrix.width*cw;canvas.height=matrix.height*lh;
+            ctx.fillStyle='#02040a';ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.font='10px "SF Mono","Consolas",monospace';ctx.textBaseline='top';
+            for(let y=0;y<matrix.height;y++)for(let x=0;x<matrix.width;x++){
+                const item=matrix.data[y*matrix.width+x];if(!item||item.char===' ')continue;
+                ctx.fillStyle=`rgb(${item.r},${item.g},${item.b})`;ctx.fillText(item.char,x*cw,y*lh);
+            }
+        };
+
+        const loadImageFromFile=file=>{
+            if(!file.type.startsWith('image/'))return toast('请选择图片',true);
+            const r=new FileReader();r.onload=e=>{
+                const img=new Image();img.onload=()=>{
+                    state.image=img;state.images.push({img,name:file.name});
+                    dom.previewImg.src=e.target.result;dom.previewImg.style.display='block';
+                    dom.dropIcon.style.display='none';dom.dropText.style.display='none';
+                    state.activeBatchIndex=state.images.length-1;renderBatchBar();generateAscii();
+                };img.src=e.target.result;
+            };r.readAsDataURL(file);
+        };
+
+        const renderBatchBar=()=>{
+            dom.batchBar.innerHTML=state.images.map((item,i)=>`<div class="batch-thumb${i===state.activeBatchIndex?' active':''}" data-index="${i}"><img src="${item.img.src}" alt=""><button class="del-btn" data-index="${i}">×</button></div>`).join('');
+            dom.batchRow.style.display=state.images.length>0?'flex':'none';
+            dom.batchBar.querySelectorAll('.batch-thumb').forEach(el=>{
+                el.addEventListener('click',e=>{if(e.target.tagName==='BUTTON')return;const idx=parseInt(el.dataset.index);switchBatchImage(idx);});
+                el.querySelector('.del-btn').addEventListener('click',e=>{e.stopPropagation();removeBatchImage(parseInt(el.dataset.index));});
+            });
+        };
+        const switchBatchImage=idx=>{
+            const item=state.images[idx];if(!item)return;
+            state.activeBatchIndex=idx;state.image=item.img;
+            dom.previewImg.src=item.img.src;dom.previewImg.style.display='block';
+            dom.dropIcon.style.display='none';dom.dropText.style.display='none';
+            renderBatchBar();generateAscii();
+        };
+        const removeBatchImage=idx=>{
+            state.images.splice(idx,1);
+            if(state.images.length===0){state.activeBatchIndex=-1;state.image=null;state.asciiText='';state.asciiHtml='';state.colorMatrix=null;renderOutput();dom.previewImg.style.display='none';dom.dropIcon.style.display='';dom.dropText.style.display='';dom.outputStats.textContent='—';}
+            else{const newIdx=Math.min(idx,state.images.length-1);switchBatchImage(newIdx);}
+            renderBatchBar();
+        };
+
+        const batchGenerateAll=()=>{
+            if(state.images.length===0)return toast('无批量图片',true);
+            let count=0;
+            state.images.forEach((item,i)=>{state.image=item.img;generateAscii();item.asciiText=state.asciiText;item.asciiHtml=state.asciiHtml;item.colorMatrix=state.colorMatrix;count++;});
+            if(state.activeBatchIndex>=0)switchBatchImage(state.activeBatchIndex);
+            toast(`已批量生成 ${count} 幅作品`);
+        };
+
+        const loadExample=()=>{
+            const c=document.createElement('canvas');c.width=300;c.height=200;
+            const cx=c.getContext('2d');cx.fillStyle='#ff6b6b';cx.fillRect(0,0,300,200);
+            cx.fillStyle='#fff';cx.font='bold 32px sans-serif';cx.fillText('ASCII',120,100);
+            const img=new Image();img.onload=()=>{state.image=img;dom.previewImg.src=c.toDataURL();dom.previewImg.style.display='block';dom.dropIcon.style.display='none';dom.dropText.style.display='none';generateAscii();};img.src=c.toDataURL();
+        };
+
+        const generateTextImage=()=>{
+            const text=dom.textArea.value.trim();if(!text)return toast('输入文字',true);
+            const fs=parseInt(dom.fontSizeSlider.value),ff=dom.fontSelect.value;
+            const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+            const style=(dom.boldCheck.checked?'bold ':'')+(dom.italicCheck.checked?'italic ':'')+`${fs}px "${ff}"`;
+            ctx.font=style;const m=ctx.measureText(text);
+            canvas.width=m.width+30;canvas.height=fs*1.6+20;
+            ctx.font=style;ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle='#fff';ctx.fillText(text,15,fs+10);
+            const img=new Image();img.onload=()=>{state.image=img;generateAscii();};img.src=canvas.toDataURL();
+        };
+
+        const getDrawCoords=e=>{const rect=dom.drawCanvas.getBoundingClientRect(),sx=360/rect.width,sy=240/rect.height;let cx,cy;if(e.touches){cx=e.touches[0].clientX;cy=e.touches[0].clientY;}else{cx=e.clientX;cy=e.clientY;}return{x:(cx-rect.left)*sx,y:(cy-rect.top)*sy};};
+        dom.drawCanvas.addEventListener('mousedown',e=>{e.preventDefault();state.isDrawing=true;const c=getDrawCoords(e);ctxDraw.beginPath();ctxDraw.moveTo(c.x,c.y);});
+        dom.drawCanvas.addEventListener('mousemove',e=>{if(!state.isDrawing)return;e.preventDefault();const c=getDrawCoords(e);ctxDraw.lineTo(c.x,c.y);ctxDraw.strokeStyle=state.isEraser?'#fff':dom.drawColor.value;ctxDraw.lineWidth=parseInt(dom.drawThickness.value);ctxDraw.lineCap='round';ctxDraw.stroke();});
+        dom.drawCanvas.addEventListener('mouseup',()=>state.isDrawing=false);dom.drawCanvas.addEventListener('mouseleave',()=>state.isDrawing=false);
+        dom.drawCanvas.addEventListener('touchstart',e=>{e.preventDefault();state.isDrawing=true;const c=getDrawCoords(e);ctxDraw.beginPath();ctxDraw.moveTo(c.x,c.y);},{passive:false});
+        dom.drawCanvas.addEventListener('touchmove',e=>{if(!state.isDrawing)return;e.preventDefault();const c=getDrawCoords(e);ctxDraw.lineTo(c.x,c.y);ctxDraw.strokeStyle=state.isEraser?'#fff':dom.drawColor.value;ctxDraw.lineWidth=parseInt(dom.drawThickness.value);ctxDraw.stroke();},{passive:false});
+        dom.drawCanvas.addEventListener('touchend',()=>state.isDrawing=false);
+        $('btnClearDraw').addEventListener('click',initDrawCanvas);
+        $('btnEraser').addEventListener('click',()=>{state.isEraser=!state.isEraser;$('btnEraser').textContent=state.isEraser?'🖌️画笔':'🧽橡皮';});
+        $('btnGenerateDraw').addEventListener('click',()=>{const img=new Image();img.onload=()=>{state.image=img;generateAscii();};img.src=dom.drawCanvas.toDataURL();});
+
+        const GALLERY_KEY='ascii_gallery';
+        const loadGallery=()=>{try{return JSON.parse(localStorage.getItem(GALLERY_KEY)||'[]')}catch{return[]}};
+        const saveToGallery=t=>{const g=loadGallery();g.unshift({text:t,date:Date.now()});if(g.length>20)g.pop();localStorage.setItem(GALLERY_KEY,JSON.stringify(g));renderGallery();};
+        const renderGallery=()=>{const g=loadGallery();dom.galleryScroll.innerHTML=g.map((item,i)=>`<div class="gallery-thumb" data-index="${i}">${item.text.slice(0,70)}</div>`).join('');dom.galleryScroll.querySelectorAll('.gallery-thumb').forEach(el=>el.addEventListener('click',()=>{const idx=parseInt(el.dataset.index);const items=loadGallery();if(items[idx]){state.asciiText=items[idx].text;state.asciiHtml='';state.colorMatrix=null;renderOutput();}}));};
+
+        const copyToClipboard=async()=>{
+            if(!state.asciiText)return toast('无内容',true);
+            const content=(state.viewMode==='color'&&state.asciiHtml)?state.asciiHtml:state.asciiText;
+            try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(content);else{const ta=document.createElement('textarea');ta.value=content;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);}toast('已复制');}catch{toast('复制失败',true);}
+        };
+
+        $('btnDownloadTxt').addEventListener('click',()=>{
+            if(!state.asciiText)return;const blob=new Blob([state.asciiText],{type:'text/plain'});
+            const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ascii.txt';a.click();
+        });
+        $('btnDownloadPng').addEventListener('click',()=>{
+            if(!state.asciiText)return;const lines=state.asciiText.split('\n');
+            const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+            ctx.font='10px monospace';const maxW=Math.max(...lines.map(l=>ctx.measureText(l).width));
+            canvas.width=maxW+24;canvas.height=lines.length*12+24;
+            ctx.fillStyle='#02040a';ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle='#b4e0b4';lines.forEach((l,i)=>ctx.fillText(l,12,15+i*12));
+            const a=document.createElement('a');a.href=canvas.toDataURL();a.download='ascii.png';a.click();
+        });
+        $('btnDownloadSvg').addEventListener('click',()=>{
+            if(!state.asciiText||!state.colorMatrix)return toast('请先切换到彩色渲染模式',true);
+            const m=state.colorMatrix,cw=8,lh=12;let svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${m.width*cw}" height="${m.height*lh}" style="background:#02040a"><style>text{font:10px "SF Mono",Consolas,monospace}</style>`;
+            for(let y=0;y<m.height;y++)for(let x=0;x<m.width;x++){
+                const item=m.data[y*m.width+x];if(!item||item.char===' ')continue;
+                svg+=`<text x="${x*cw}" y="${y*lh+10}" fill="rgb(${item.r},${item.g},${item.b})">${item.char==='<'?'&lt;':item.char==='>'?'&gt;':item.char==='&'?'&amp;':item.char}</text>`;
+            }
+            svg+='</svg>';
+            const blob=new Blob([svg],{type:'image/svg+xml'});
+            const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ascii.svg';a.click();
+        });
+        $('btnDownloadHtml').addEventListener('click',()=>{
+            if(!state.asciiHtml)return toast('请先切换到彩色渲染模式',true);
+            const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>PixelGlyph Art</title><style>body{background:#02040a;display:flex;justify-content:center;padding:20px}pre{font:10px/1.18 "SF Mono",Consolas,monospace}</style></head><body><pre>${state.asciiHtml}</pre></body></html>`;
+            const blob=new Blob([html],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ascii.html';a.click();
+        });
+
+        function crc32(data){
+            let crc=0xFFFFFFFF;
+            for(let i=0;i<data.length;i++){
+                crc^=data[i];
+                for(let j=0;j<8;j++)crc=(crc>>>1)^(crc&1?0xEDB88320:0);
+            }
+            return (crc^0xFFFFFFFF)>>>0;
+        }
+
+        function createZIP(files){
+            const encoder=new TextEncoder();
+            let localParts=[],centralParts=[],offset=0;
+            for(const f of files){
+                const nameBytes=encoder.encode(f.name);
+                const data=f.data instanceof Uint8Array?f.data:new Uint8Array(await f.data.arrayBuffer());
+                const crc=crc32(data),size=data.length;
+                const lh=new ArrayBuffer(30+nameBytes.length);const lv=new DataView(lh);
+                lv.setUint32(0,0x04034b50,true);lv.setUint16(4,20,true);lv.setUint16(6,0,true);
+                lv.setUint16(8,0,true);lv.setUint16(10,0,true);lv.setUint16(12,0,true);
+                lv.setUint32(14,crc,true);lv.setUint32(18,size,true);lv.setUint32(22,size,true);
+                lv.setUint16(26,nameBytes.length,true);lv.setUint16(28,0,true);
+                new Uint8Array(lh,30).set(nameBytes);
+                localParts.push(new Uint8Array(lh),data);
+                const ce=new ArrayBuffer(46+nameBytes.length);const cv=new DataView(ce);
+                cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);
+                cv.setUint16(8,0,true);cv.setUint16(10,0,true);cv.setUint16(12,0,true);cv.setUint16(14,0,true);
+                cv.setUint32(16,crc,true);cv.setUint32(20,size,true);cv.setUint32(24,size,true);
+                cv.setUint16(28,nameBytes.length,true);cv.setUint16(30,0,true);cv.setUint16(32,0,true);
+                cv.setUint16(34,0,true);cv.setUint16(36,0,true);cv.setUint32(38,0,true);
+                cv.setUint32(42,offset,true);new Uint8Array(ce,46).set(nameBytes);
+                centralParts.push(new Uint8Array(ce));
+                offset+=30+nameBytes.length+size;
+            }
+            const cdOffset=offset;
+            const cdSize=centralParts.reduce((s,a)=>s+a.length,0);
+            const eocd=new ArrayBuffer(22);const ed=new DataView(eocd);
+            ed.setUint32(0,0x06054b50,true);ed.setUint16(4,0,true);ed.setUint16(6,0,true);
+            ed.setUint16(8,files.length,true);ed.setUint16(10,files.length,true);
+            ed.setUint32(12,cdSize,true);ed.setUint32(16,cdOffset,true);ed.setUint16(20,0,true);
+            const all=[...localParts,...centralParts,new Uint8Array(eocd)];
+            return new Blob(all,{type:'application/zip'});
+        }
+
+        $('btnBatchGenerate').addEventListener('click',batchGenerateAll);
+        $('btnBatchExport').addEventListener('click',async()=>{
+            if(state.images.length===0)return toast('无批量内容',true);
+            let generated=state.images.every(item=>item.asciiText);
+            if(!generated){toast('请先点击"批量生成"',true);return;}
+            const files=[];
+            for(let i=0;i<state.images.length;i++){
+                const item=state.images[i],name=item.name.replace(/\.[^.]+$/,'')||`image_${i+1}`;
+                files.push({name:`${name}.txt`,data:new Blob([item.asciiText])});
+                if(item.colorMatrix){
+                    const m=item.colorMatrix,cw=8,lh=12;let svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${m.width*cw}" height="${m.height*lh}" style="background:#02040a"><style>text{font:10px "SF Mono",Consolas,monospace}</style>`;
+                    for(let y=0;y<m.height;y++)for(let x=0;x<m.width;x++){
+                        const ch=m.data[y*m.width+x];if(!ch||ch.char===' ')continue;
+                        svg+=`<text x="${x*cw}" y="${y*lh+10}" fill="rgb(${ch.r},${ch.g},${ch.b})">${ch.char==='<'?'&lt;':ch.char==='>'?'&gt;':ch.char==='&'?'&amp;':ch.char}</text>`;
+                    }
+                    svg+='</svg>';
+                    files.push({name:`${name}.svg`,data:new Blob([svg])});
+                }
+            }
+            try{
+                const zip=await createZIP(files);
+                const a=document.createElement('a');a.href=URL.createObjectURL(zip);a.download='pixelglyph_batch.zip';a.click();
+                toast('ZIP 已下载');
+            }catch(e){toast('ZIP 生成失败:'+e.message,true);}
+        });
+
+        dom.modeSwitcher.addEventListener('click',e=>{const btn=e.target.closest('.mode-option');if(btn)switchMode(btn.dataset.mode);});
+        dom.dropZone.addEventListener('click',e=>{if(e.target!==dom.fileInput&&e.target!==dom.previewImg)dom.fileInput.click();});
+        dom.fileInput.addEventListener('change',e=>{
+            const files=Array.from(e.target.files);
+            if(files.length===0)return;
+            files.forEach(f=>loadImageFromFile(f));
+            e.target.value='';
+        });
+        dom.dropZone.addEventListener('dragover',e=>{e.preventDefault();dom.dropZone.classList.add('drag-over');});
+        dom.dropZone.addEventListener('dragleave',()=>dom.dropZone.classList.remove('drag-over'));
+        dom.dropZone.addEventListener('drop',e=>{e.preventDefault();dom.dropZone.classList.remove('drag-over');const files=Array.from(e.dataTransfer.files);files.forEach(f=>loadImageFromFile(f));});
+        $('btnLoadExample').addEventListener('click',loadExample);
+        $('btnGenerateText').addEventListener('click',generateTextImage);
+        dom.fontSizeSlider.addEventListener('input',()=>dom.fontSizeValue.textContent=dom.fontSizeSlider.value);
+        dom.drawThickness.addEventListener('input',()=>dom.drawThicknessValue.textContent=dom.drawThickness.value);
+        $('btnCaptureCamera').addEventListener('click',()=>{if(!state.cameraStream)return toast('请先切换摄像头',true);const c=document.createElement('canvas');c.width=dom.cameraVideo.videoWidth;c.height=dom.cameraVideo.videoHeight;c.getContext('2d').drawImage(dom.cameraVideo,0,0);const img=new Image();img.onload=()=>{state.image=img;generateAscii();};img.src=c.toDataURL();});
+        dom.filterSelect.addEventListener('change',()=>{if(state.image)generateAscii();});
+        dom.widthSlider.addEventListener('input',()=>{dom.widthValue.textContent=dom.widthSlider.value;if(state.image)generateAscii();});
+        dom.aspectSlider.addEventListener('input',()=>{dom.aspectValue.textContent=(parseInt(dom.aspectSlider.value)/100).toFixed(2);if(state.image)generateAscii();});
+        dom.chipGroup.addEventListener('click',e=>{const chip=e.target.closest('.chip');if(!chip)return;state.charset=chip.dataset.charset;dom.chipGroup.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));chip.classList.add('active');dom.customCharset.value='';if(state.image)generateAscii();});
+        dom.customCharset.addEventListener('input',e=>{if(e.target.value.length>=2){state.charset=e.target.value;dom.chipGroup.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));if(state.image)generateAscii();}});
+        dom.viewToggle.addEventListener('click',e=>{const btn=e.target.closest('.view-option');if(!btn)return;state.viewMode=btn.dataset.view;dom.viewToggle.querySelectorAll('.view-option').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderOutput();});
+        $('btnSaveToGallery').addEventListener('click',()=>{if(!state.asciiText)return toast('无内容',true);saveToGallery(state.asciiText);toast('已收藏');});
+        $('btnGalleryToggle').addEventListener('click',()=>{dom.galleryDrawer.classList.toggle('open');if(dom.galleryDrawer.classList.contains('open'))renderGallery();});
+        $('btnClearGallery').addEventListener('click',()=>{localStorage.removeItem(GALLERY_KEY);renderGallery();toast('已清空');});
+        $('btnCopy').addEventListener('click',copyToClipboard);
+        $('btnReset').addEventListener('click',()=>{
+            state.image=null;state.asciiText='';state.asciiHtml='';state.colorMatrix=null;state.images=[];state.activeBatchIndex=-1;
+            dom.artOutput.innerHTML='';dom.colorCanvas.style.display='none';dom.previewImg.style.display='none';
+            dom.dropIcon.style.display='';dom.dropText.style.display='';dom.fileInput.value='';dom.textArea.value='';
+            dom.filterSelect.value='none';dom.widthSlider.value=100;dom.aspectSlider.value=50;
+            dom.widthValue.textContent='100';dom.aspectValue.textContent='0.50';
+            dom.brightnessSlider.value=0;dom.contrastSlider.value=0;dom.brightnessValue.textContent='0';dom.contrastValue.textContent='0';
+            dom.ditherCheck.checked=false;dom.invertCheck.checked=false;state.brightness=0;state.contrast=0;state.dither=false;state.invertMapping=false;
+            dom.batchBar.innerHTML='';dom.batchRow.style.display='none';initDrawCanvas();stopCamera();toast('已重置');
+        });
+        dom.btnThemeToggle.addEventListener('click',()=>{state.theme=state.theme==='dark'?'light':'dark';applyTheme();});
+        $('btnFullscreen').addEventListener('click',()=>{if(!document.fullscreenElement)dom.appContainer.requestFullscreen();else document.exitFullscreen();});
+        $('btnShare').addEventListener('click',()=>{if(!state.asciiText)return;const text=`我用 PixelGlyph 创作了 ASCII 艺术！\n${state.asciiText.slice(0,400)}...\n在线体验：${location.href}`;if(navigator.share)navigator.share({title:'ASCII',text});else navigator.clipboard.writeText(text).then(()=>toast('分享文本已复制'));});
+        $('btnRandom').addEventListener('click',()=>{
+            const inspos=[{type:'text',text:'Hello World',font:'Arial',size:40},{type:'text',text:'ASCII ART',font:'黑体',size:48},{type:'draw',pattern:'circles'}];
+            const inspo=inspos[Math.floor(Math.random()*inspos.length)];
+            if(inspo.type==='text'){dom.textArea.value=inspo.text;dom.fontSelect.value=inspo.font;dom.fontSizeSlider.value=inspo.size;dom.fontSizeValue.textContent=inspo.size;switchMode('text');generateTextImage();}
+            else{switchMode('draw');initDrawCanvas();for(let i=0;i<8;i++){ctxDraw.beginPath();ctxDraw.arc(Math.random()*360,Math.random()*240,20+Math.random()*30,0,Math.PI*2);ctxDraw.fillStyle=`hsl(${Math.random()*360},70%,60%)`;ctxDraw.fill();}const img=new Image();img.onload=()=>{state.image=img;generateAscii();};img.src=dom.drawCanvas.toDataURL();}
+            toast('随机灵感已生成！');
+        });
+        document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();if(state.mode==='text')generateTextImage();else if(state.mode==='draw')$('btnGenerateDraw').click();else if(state.image)generateAscii();else toast('请先提供素材',true);}});
+
+        dom.brightnessSlider.addEventListener('input',()=>{state.brightness=parseInt(dom.brightnessSlider.value);dom.brightnessValue.textContent=state.brightness;if(state.image)generateAscii();});
+        dom.contrastSlider.addEventListener('input',()=>{state.contrast=parseInt(dom.contrastSlider.value);dom.contrastValue.textContent=state.contrast;if(state.image)generateAscii();});
+        dom.ditherCheck.addEventListener('change',()=>{state.dither=dom.ditherCheck.checked;if(state.image)generateAscii();});
+        dom.invertCheck.addEventListener('change',()=>{state.invertMapping=dom.invertCheck.checked;if(state.image)generateAscii();});
+
+        initDrawCanvas();renderGallery();switchMode('image');
+        console.log('🚀 PixelGlyph Pro v2.0');
+    })();
     </script>
 </body>
 </html>
